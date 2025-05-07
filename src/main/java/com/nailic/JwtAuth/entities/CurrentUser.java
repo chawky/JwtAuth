@@ -13,7 +13,6 @@ import jakarta.persistence.Table;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -31,7 +30,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 @Table(name = "`current_user`")
 public class CurrentUser implements UserDetails, Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,22 +50,16 @@ public class CurrentUser implements UserDetails, Serializable {
   @Enumerated(EnumType.STRING)
   private Set<Role> roles;
 
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
   /**
    * @return
    */
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return roles.stream().map(role -> new SimpleGrantedAuthority(role.name())).collect(Collectors.toList());
+    return roles.stream().map(role -> new SimpleGrantedAuthority(role.name()))
+        .collect(Collectors.toList());
   }
-  Set<String> getRoleNames(){
+
+  public Set<String> getRoleNames() {
     return roles.stream().map(Role::name).collect(Collectors.toSet());
   }
 
@@ -76,9 +71,6 @@ public class CurrentUser implements UserDetails, Serializable {
     return this.password;
   }
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
 
   /**
    * @return
@@ -86,10 +78,6 @@ public class CurrentUser implements UserDetails, Serializable {
   @Override
   public String getUsername() {
     return this.username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
   }
 
   /**

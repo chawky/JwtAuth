@@ -1,4 +1,4 @@
 package com.nailic.JwtAuth.entities;
- enum Role {
+ public enum Role {
   STUDENT,PARTNER,TRAINER,ADMIN
 }

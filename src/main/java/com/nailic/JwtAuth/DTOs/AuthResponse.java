@@ -2,19 +2,18 @@ package com.nailic.JwtAuth.DTOs;
 
 import java.util.Set;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class CurrentUserDto {
-  private String username;
-  private String email;
+@Builder
+public class AuthResponse {
+  private String token;
+  private String refreshToken;
+  private long userId;
   private Set<String> roles;
-  private String password;
+
 }
