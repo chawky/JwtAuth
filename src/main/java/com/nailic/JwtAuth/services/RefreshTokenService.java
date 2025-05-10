@@ -3,7 +3,7 @@ package com.nailic.JwtAuth.services;
 import com.nailic.JwtAuth.DTOs.AuthResponse;
 import com.nailic.JwtAuth.entities.CurrentUser;
 import com.nailic.JwtAuth.entities.RefreshToken;
-import com.nailic.JwtAuth.entities.TokenRefreshException;
+import com.nailic.JwtAuth.exceptions.NotFoundException.TokenRefreshException;
 import com.nailic.JwtAuth.repos.CurrentUserRepo;
 import com.nailic.JwtAuth.repos.RefreshTokenRepo;
 import jakarta.transaction.Transactional;

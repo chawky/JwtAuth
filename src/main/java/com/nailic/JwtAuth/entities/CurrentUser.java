@@ -12,7 +12,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -50,6 +52,11 @@ public class CurrentUser implements UserDetails, Serializable {
   @Enumerated(EnumType.STRING)
   private Set<Role> roles;
 
+  //otp attributes
+  @Column(nullable = true)
+  private String otp;
+  @Column(nullable = true)
+  private LocalDateTime otpExpiry;
   /**
    * @return
    */
