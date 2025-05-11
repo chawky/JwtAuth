@@ -7,11 +7,14 @@ import com.nailic.JwtAuth.entities.RefreshToken;
 import com.nailic.JwtAuth.entities.Role;
 import com.nailic.JwtAuth.exceptions.NotFoundException;
 import com.nailic.JwtAuth.repos.CurrentUserRepo;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -33,6 +36,8 @@ public class CurrentUserService implements UserDetailsService {
   private CurrentUserRepo currentUserRepo;
   @Autowired
   private JwtService jwtService;
+  @Autowired
+  private EmailService emailService;
   @Autowired
   private RefreshTokenService refreshTokenService;
 
@@ -85,7 +90,7 @@ public class CurrentUserService implements UserDetailsService {
     return user;
   }
 
-  public CurrentUser registerUser(CurrentUserDto userDto) {
+  public CurrentUser registerUser(CurrentUserDto userDto) throws NotFoundException {
     ModelMapper userMapper = new ModelMapper();
     Converter<Set<String>, Set<Role>> roleConverter =
         mappingContext -> {
@@ -106,11 +111,22 @@ public class CurrentUserService implements UserDetailsService {
       throw new RuntimeException("User already registered. Please use different username.");
     }
     user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-    return currentUserRepo.save(user);
+    user.setVerificationToken(UUID.randomUUID().toString());
+    user.setVerificationTokenExpiry(LocalDateTime.now().plusDays(1));
+    user.setIsVerified(false);
+    CurrentUser SavedUser =  currentUserRepo.save(user);
+    if(SavedUser!=null) {
+      emailService.sendVerificationEmail(user.getEmail());
+      return SavedUser;
+    }
+    else {
+      throw new RuntimeException("Error saving user");
+    }
+
+
   }
 
-  public AuthResponse login(CurrentUser currentUser, AuthenticationManager authenticationManager)
-      throws NotFoundException {
+  public AuthResponse login(CurrentUser currentUser, AuthenticationManager authenticationManager) {
     Authentication authentication =
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(

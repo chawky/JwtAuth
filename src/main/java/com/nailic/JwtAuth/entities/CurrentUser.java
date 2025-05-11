@@ -14,7 +14,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -53,10 +52,19 @@ public class CurrentUser implements UserDetails, Serializable {
   private Set<Role> roles;
 
   //otp attributes
-  @Column(nullable = true)
+  @Column
   private String otp;
-  @Column(nullable = true)
+  @Column
   private LocalDateTime otpExpiry;
+
+  //email verification
+  @Column(nullable = false)
+  private Boolean isVerified = false;
+  @Column
+  private String verificationToken;
+  @Column
+  private LocalDateTime verificationTokenExpiry;
+
   /**
    * @return
    */

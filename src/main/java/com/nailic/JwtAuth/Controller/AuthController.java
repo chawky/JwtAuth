@@ -8,6 +8,7 @@ import com.nailic.JwtAuth.entities.CurrentUser;
 import com.nailic.JwtAuth.exceptions.NotFoundException;
 import com.nailic.JwtAuth.exceptions.OTPExpiredException;
 import com.nailic.JwtAuth.services.CurrentUserService;
+import com.nailic.JwtAuth.services.EmailService;
 import com.nailic.JwtAuth.services.OtpService;
 import com.nailic.JwtAuth.services.RefreshTokenService;
 import org.modelmapper.ModelMapper;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,12 +33,14 @@ public class AuthController {
   private RefreshTokenService refreshTokenService;
   @Autowired
   private AuthenticationManager authenticationManager;
+  @Autowired
+  private EmailService emailService;
 
   @Autowired
   private OtpService otpService;
 
   @PostMapping("/signup")
-  public CurrentUserDto signup(@RequestBody CurrentUserDto userDto) {
+  public CurrentUserDto signup(@RequestBody CurrentUserDto userDto) throws NotFoundException {
     ModelMapper userMapper = new ModelMapper();
     CurrentUser currentUser = currentUserService.registerUser(userDto);
     if (currentUser == null) {
@@ -79,9 +83,7 @@ public class AuthController {
 
   @PostMapping("/verify-otp")
   public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
-
     try {
-
       otpService.verifyOtp(email, otp);
       return ResponseEntity.ok("otp verified");
     } catch (OTPExpiredException e) {
@@ -93,13 +95,33 @@ public class AuthController {
 
   @PostMapping("/reset-pw")
   public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
-
     try {
-
       otpService.resetPassword(request);
       return ResponseEntity.ok("password reset successful");
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
   }
+
+  @GetMapping("/verify")
+  public ResponseEntity<?> verifyAccount(@RequestParam String token) {
+    if (emailService.verifyUser(token)) {
+      return ResponseEntity.ok("Account verified");
+    } else {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+    }
+  }
+
+  @PostMapping("/resend-verification")
+  public ResponseEntity<?> resendVerification(@RequestParam String email) throws NotFoundException {
+    emailService.resendVerificationEmail(email);
+    return ResponseEntity.ok("Account verified");
+  }
+
+  @PostMapping("/send-verification")
+  public ResponseEntity<?> sendVerification(@RequestParam String email) throws NotFoundException {
+    emailService.sendVerificationEmail(email);
+    return ResponseEntity.ok("Account verified");
+  }
+
 }

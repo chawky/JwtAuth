@@ -12,4 +12,6 @@ public interface CurrentUserRepo extends JpaRepository<CurrentUser, Long> {
   CurrentUser findByEmail(String email) throws NotFoundException;
 
   CurrentUser findByUsernameAndPassword(String username, String password) throws NotFoundException;
+
+  CurrentUser findByVerificationToken(String token);
 }
